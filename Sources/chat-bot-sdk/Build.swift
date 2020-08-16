@@ -5,7 +5,7 @@ struct Project: Decodable {
     var version: String
 }
 
-func run(botUrl: URL) throws {
+func build(botUrl: URL) throws {
     let projectUrl = botUrl.appendingPathComponent(".cbproject")
     let project = try JSONDecoder().decode(Project.self, from: try Data(contentsOf: projectUrl))
     let botname = project.name
@@ -15,6 +15,10 @@ func run(botUrl: URL) throws {
 
     let dockerUrl = botUrl.appendingPathComponent(".docker")
     clone(tag: "0.0.2", repository: repository, path: dockerUrl.path)
+
+    if FileManager.default.fileExists(atPath: dockerUrl.path) {
+        try FileManager.default.removeItem(at: dockerUrl)
+    }
 
     try FileManager.default.copyItem(
         at: botUrl.appendingPathComponent(botname),
@@ -39,4 +43,20 @@ func run(botUrl: URL) throws {
     )
 
     shell(["docker-compose", "-f", "./.docker/docker-compose.yml", "build"])
+}
+
+func up() throws {
+    shell(["docker-compose", "-f", "./.docker/docker-compose.yml", "up", "--no-start"])
+}
+
+func start() throws {
+    shell(["docker-compose", "-f", "./.docker/docker-compose.yml", "start"])
+}
+
+func stop() throws {
+    shell(["docker-compose", "-f", "./.docker/docker-compose.yml", "stop"])
+}
+
+func down() throws {
+    shell(["docker-compose", "-f", "./.docker/docker-compose.yml", "down"])
 }
