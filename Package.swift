@@ -10,8 +10,9 @@ let package = Package(
             name: "ChatBotSDKCommandLineTools",
             targets: ["ChatBotSDKCommandLineTools"]
         ),
-        .executable(name: "chat-bot-sdk",
-                    targets: ["chat-bot-sdk"]
+        .executable(
+            name: "chat-bot-sdk",
+            targets: ["chat-bot-sdk"]
         )
     ],
     dependencies: [
