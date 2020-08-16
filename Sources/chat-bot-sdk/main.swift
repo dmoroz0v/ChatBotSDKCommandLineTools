@@ -18,6 +18,10 @@ func shell(_ args: [String]) -> [String] {
     return result.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
 }
 
+struct Exeption: Error {
+
+}
+
 struct Urls {
 
     struct PathComponent {
@@ -68,9 +72,7 @@ struct Urls {
 var command = CommandLine.arguments[1]
 
 if command != "create" {
-    throw NSError(domain: "ChatBotSDKCommandLineTools", code: -1, userInfo: [
-        NSError.UserInfoKey : "\(command) not found",
-    ])
+    throw Exeption()
 }
 
 let baseUrl = URL(fileURLWithPath: shell(["pwd"]).first!)
@@ -122,10 +124,10 @@ do {
             if let data = string.data(using: .utf8) {
                 try data.write(to: url)
             } else {
-                throw NSError(domain: "chat-bot-sdk", code: -1, userInfo: nil)
+                throw Exeption()
             }
         } else {
-            throw NSError(domain: "chat-bot-sdk", code: -1, userInfo: nil)
+            throw Exeption()
         }
     }
 
