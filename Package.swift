@@ -5,11 +5,25 @@ import PackageDescription
 
 let package = Package(
     name: "ChatBotSDKCommandLineTools",
+    products: [
+        .library(
+            name: "ChatBotSDKCommandLineTools",
+            targets: ["ChatBotSDKCommandLineTools"]
+        ),
+        .executable(name: "chat-bot-sdk",
+                    targets: ["chat-bot-sdk"]
+        )
+    ],
     dependencies: [
     ],
     targets: [
         .target(
             name: "ChatBotSDKCommandLineTools",
-            dependencies: []),
+            dependencies: []
+        ),
+        .target(
+            name: "chat-bot-sdk",
+            dependencies: ["ChatBotSDKCommandLineTools"]
+        ),
     ]
 )
