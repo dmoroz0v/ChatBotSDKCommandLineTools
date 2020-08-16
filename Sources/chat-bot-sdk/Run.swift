@@ -38,5 +38,5 @@ func run(botUrl: URL) throws {
         tag: tag
     )
 
-    shell(["docker-compose", "build"])
+    shell(["docker-compose", "-f", "./.docker/docker-compose.yml", "build"])
 }
