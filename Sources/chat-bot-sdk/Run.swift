@@ -28,7 +28,7 @@ func run(botUrl: URL) throws {
 
     let replacingPathComponents: [String] = [
         "logic/App/Package.swift",
-        "logic/App/Source/App/main.swift",
+        "logic/App/Sources/App/main.swift",
     ]
 
     try replace(
