@@ -187,12 +187,10 @@ func create(baseUrl: URL, botname: String, tag: String) throws {
                 to: botUrl.appendingPathComponent(content.lastPathComponent)
             )
         }
-
+        try? FileManager.default.removeItem(at: urls.destinationUrl)
     }
     catch let e {
-        print(e)
+        try? FileManager.default.removeItem(at: urls.destinationUrl)
+        throw e
     }
-
-
-    try? FileManager.default.removeItem(at: urls.destinationUrl)
 }
