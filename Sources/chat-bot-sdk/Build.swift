@@ -5,7 +5,7 @@ struct Project: Decodable {
     var version: ReleaseSpec
 }
 
-func build(botUrl: URL) throws {
+func build(botUrl: URL, verbose: Bool) throws {
     let projectUrl = botUrl.appendingPathComponent(".cbproject")
     let decoder = JSONDecoder()
     decoder.keyDecodingStrategy = .convertFromSnakeCase
@@ -17,14 +17,17 @@ func build(botUrl: URL) throws {
     clone(tag: version.dockerTemplate.version, repository: version.dockerTemplate.repository, path: dockerUrl.path)
 
     if FileManager.default.fileExists(atPath: dockerUrl.path) {
+        if verbose { print("Deleting '\(dockerUrl)'") }
         try FileManager.default.removeItem(at: dockerUrl)
     }
 
+    if verbose { print("Copying '\(botUrl.appendingPathComponent(botname).path)' to '\(dockerUrl.appendingPathComponent("logic").appendingPathComponent(botname).path)'") }
     try FileManager.default.copyItem(
         at: botUrl.appendingPathComponent(botname),
         to: dockerUrl.appendingPathComponent("logic").appendingPathComponent(botname)
     )
 
+    if verbose { print("Copying '\(botUrl.appendingPathComponent("config.json").path)' to '\(dockerUrl.appendingPathComponent("logic").appendingPathComponent("config.json").path)'") }
     try FileManager.default.copyItem(
         at: botUrl.appendingPathComponent("config.json"),
         to: dockerUrl.appendingPathComponent("logic").appendingPathComponent("config.json")
@@ -35,6 +38,7 @@ func build(botUrl: URL) throws {
         "logic/App/Sources/App/main.swift",
     ]
 
+    if verbose { print("Replacing content in template") }
     try replace(
         replacingPathComponents: replacingPathComponents,
         destinationUrl: dockerUrl,
