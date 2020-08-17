@@ -14,12 +14,13 @@ func build(botUrl: URL, verbose: Bool) throws {
     let version = project.version
 
     let dockerUrl = botUrl.appendingPathComponent(".docker")
-    clone(tag: version.dockerTemplate.version, repository: version.dockerTemplate.repository, path: dockerUrl.path)
 
     if FileManager.default.fileExists(atPath: dockerUrl.path) {
         if verbose { print("Deleting '\(dockerUrl)'") }
         try FileManager.default.removeItem(at: dockerUrl)
     }
+
+    clone(tag: version.dockerTemplate.version, repository: version.dockerTemplate.repository, path: dockerUrl.path)
 
     if verbose { print("Copying '\(botUrl.appendingPathComponent(botname).path)' to '\(dockerUrl.appendingPathComponent("logic").appendingPathComponent(botname).path)'") }
     try FileManager.default.copyItem(
