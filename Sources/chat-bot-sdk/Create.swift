@@ -47,9 +47,54 @@ struct Urls {
 
 }
 
+func upReleases(cacheUrl: URL, releasesUrl: URL) throws {
+
+    if !FileManager.default.fileExists(atPath: cacheUrl.path) {
+        try FileManager.default.createDirectory(
+            at: cacheUrl,
+            withIntermediateDirectories: true,
+            attributes: nil)
+    }
+
+    if !FileManager.default.fileExists(atPath: releasesUrl.path) {
+        shell(["git", "clone", "https://github.com/dmoroz0v/ChatBotSDK-releases.git", releasesUrl.path])
+        shell(["git", "-C", releasesUrl.path, "checkout", "master"])
+    } else {
+        shell(["git", "-C", releasesUrl.path, "fetch"])
+        shell(["git", "-C", releasesUrl.path, "pull"])
+    }
+
+}
+
+struct ReleaseSpec: Decodable {
+
+    struct SDK: Decodable {
+        var version: String
+    }
+
+    struct Template: Decodable {
+        var repository: String
+        var version: String
+    }
+
+    struct Tg: Decodable {
+        var version: String
+    }
+
+    struct DockerTemplate: Decodable {
+        var repository: String
+        var version: String
+    }
+
+    var version: String
+    var template: Template
+    var sdk: SDK
+    var tg: Tg
+    var dockerTemplate: DockerTemplate
+}
+
 func create(baseUrl: URL, botname: String, tag: String) throws {
     let botUrl = baseUrl.appendingPathComponent(botname)
-    let repository = "https://github.com/dmoroz0v/ChatBotTemplate.git"
 
     let urls = Urls(
         sourceUrl: botUrl.appendingPathComponent(".tmp/template"),
@@ -57,6 +102,18 @@ func create(baseUrl: URL, botname: String, tag: String) throws {
     )
 
     do {
+        let homeUrl = FileManager.default.homeDirectoryForCurrentUser
+        let cacheUrl = homeUrl.appendingPathComponent(".cbcache")
+        let releasesUrl = cacheUrl.appendingPathComponent("releases")
+
+        try upReleases(cacheUrl: cacheUrl, releasesUrl: releasesUrl)
+
+        let data = try Data(contentsOf: releasesUrl.appendingPathComponent(tag).appendingPathExtension("json"))
+
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let releaseSpec = try decoder.decode(ReleaseSpec.self, from: data)
+
         // создание корневой директории проекта-бота
         try FileManager.default.createDirectory(
             at: botUrl,
@@ -66,7 +123,7 @@ func create(baseUrl: URL, botname: String, tag: String) throws {
 
         // клонирование шаблона проекта
 
-        clone(tag: "0.0.2", repository: repository, path: urls.sourceUrl.path)
+        clone(tag: releaseSpec.template.version, repository: releaseSpec.template.repository, path: urls.sourceUrl.path)
 
         // заполнение папки .tmp/bot
 
@@ -83,13 +140,15 @@ func create(baseUrl: URL, botname: String, tag: String) throws {
             )
         }
 
-        // замена __BOTNAME__ на botname и __TAG__ на tag
+        // замена __BOTNAME__ на botname и __sdkTAG__ и __tgSDK__
 
         try replace(
             replacingPathComponents: urls.replacingPathComponents,
             destinationUrl: urls.destinationUrl,
             botname: botname,
-            tag: tag
+            sdkTag: releaseSpec.sdk.version,
+            tgTag: releaseSpec.tg.version,
+            version: String(data: data, encoding: .utf8)!
         )
 
         // переименование директорий и файлов

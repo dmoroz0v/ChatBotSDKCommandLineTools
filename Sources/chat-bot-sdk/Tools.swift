@@ -30,14 +30,18 @@ func replace(
     replacingPathComponents: [String],
     destinationUrl: URL,
     botname: String,
-    tag: String
+    sdkTag: String,
+    tgTag: String,
+    version: String
 ) throws {
     for pathComponent in replacingPathComponents {
         let url = destinationUrl.appendingPathComponent(pathComponent)
         let data = try Data(contentsOf: url)
         if var string = String(data: data, encoding: .utf8) {
             string = string.replacingOccurrences(of: "__BOTNAME__", with: botname)
-            string = string.replacingOccurrences(of: "__TAG__", with: tag)
+            string = string.replacingOccurrences(of: "__sdkTAG__", with: sdkTag)
+            string = string.replacingOccurrences(of: "__tgTAG__", with: tgTag)
+            string = string.replacingOccurrences(of: "__VERSION__", with: version)
             if let data = string.data(using: .utf8) {
                 try data.write(to: url)
             } else {
