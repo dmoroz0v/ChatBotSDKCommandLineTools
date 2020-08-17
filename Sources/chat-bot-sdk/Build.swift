@@ -7,7 +7,9 @@ struct Project: Decodable {
 
 func build(botUrl: URL) throws {
     let projectUrl = botUrl.appendingPathComponent(".cbproject")
-    let project = try JSONDecoder().decode(Project.self, from: try Data(contentsOf: projectUrl))
+    let decoder = JSONDecoder()
+    decoder.keyDecodingStrategy = .convertFromSnakeCase
+    let project = try decoder.decode(Project.self, from: try Data(contentsOf: projectUrl))
     let botname = project.name
     let version = project.version
 
