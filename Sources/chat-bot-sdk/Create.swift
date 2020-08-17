@@ -47,6 +47,14 @@ struct Urls {
 
 }
 
+func homeDir() -> URL {
+    if #available(macOS 10.12, *) {
+        return FileManager.default.homeDirectoryForCurrentUser
+    } else {
+        fatalError("update mac OS to 10.12")
+    }
+}
+
 func upReleases(cacheUrl: URL, releasesUrl: URL) throws {
 
     if !FileManager.default.fileExists(atPath: cacheUrl.path) {
@@ -102,7 +110,7 @@ func create(baseUrl: URL, botname: String, tag: String) throws {
     )
 
     do {
-        let homeUrl = FileManager.default.homeDirectoryForCurrentUser
+        let homeUrl = homeDir()
         let cacheUrl = homeUrl.appendingPathComponent(".cbcache")
         let releasesUrl = cacheUrl.appendingPathComponent("releases")
 
