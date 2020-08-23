@@ -11,7 +11,7 @@ func hasVerbose(args: [String]) -> Bool {
 do {
     if command == "help" {
         print("commands:")
-        print("create <project_name> <version_of_tg_bot> - создать директория с проектом")
+        print("create <project_name> <release_version> - создать директорию с проектом")
         print("build - собрать образы")
         print("up - собрать контейнеры")
         print("start - запустить контейнеры")
@@ -27,13 +27,17 @@ do {
         let botUrl = URL(fileURLWithPath: shell(["pwd"]).first!)
         try build(botUrl: botUrl, verbose: hasVerbose(args: CommandLine.arguments))
     } else if command == "up" {
-        try up()
+        let botUrl = URL(fileURLWithPath: shell(["pwd"]).first!)
+        try up(botUrl: botUrl)
     } else if command == "start" {
-        try start()
+        let botUrl = URL(fileURLWithPath: shell(["pwd"]).first!)
+        try start(botUrl: botUrl)
     } else if command == "stop" {
-        try stop()
+        let botUrl = URL(fileURLWithPath: shell(["pwd"]).first!)
+        try stop(botUrl: botUrl)
     } else if command == "down" {
-        try down()
+        let botUrl = URL(fileURLWithPath: shell(["pwd"]).first!)
+        try down(botUrl: botUrl)
     } else {
         throw Exeption()
     }

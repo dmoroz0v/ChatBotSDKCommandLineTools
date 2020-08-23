@@ -5,11 +5,15 @@ struct Project: Decodable {
     var version: ReleaseSpec
 }
 
-func build(botUrl: URL, verbose: Bool) throws {
+func readProject(botUrl: URL) throws -> Project {
     let projectUrl = botUrl.appendingPathComponent(".cbproject")
     let decoder = JSONDecoder()
     decoder.keyDecodingStrategy = .convertFromSnakeCase
-    let project = try decoder.decode(Project.self, from: try Data(contentsOf: projectUrl))
+    return try decoder.decode(Project.self, from: try Data(contentsOf: projectUrl))
+}
+
+func build(botUrl: URL, verbose: Bool) throws {
+    let project = try readProject(botUrl: botUrl)
     let botname = project.name
     let version = project.version
 
@@ -49,21 +53,29 @@ func build(botUrl: URL, verbose: Bool) throws {
         version: ""
     )
 
-    shell(["docker-compose", "-f", "./.docker/docker-compose.yml", "build"])
+    shell(["docker-compose", "-f", "./.docker/docker-compose.yml", "-p", botname, "build"])
 }
 
-func up() throws {
-    shell(["docker-compose", "-f", "./.docker/docker-compose.yml", "up", "--no-start"])
+func up(botUrl: URL) throws {
+    let project = try readProject(botUrl: botUrl)
+    let botname = project.name
+    shell(["docker-compose", "-f", "./.docker/docker-compose.yml", "-p", botname, "up", "--no-start"])
 }
 
-func start() throws {
-    shell(["docker-compose", "-f", "./.docker/docker-compose.yml", "start"])
+func start(botUrl: URL) throws {
+    let project = try readProject(botUrl: botUrl)
+    let botname = project.name
+    shell(["docker-compose", "-f", "./.docker/docker-compose.yml", "-p", botname, "start"])
 }
 
-func stop() throws {
-    shell(["docker-compose", "-f", "./.docker/docker-compose.yml", "stop"])
+func stop(botUrl: URL) throws {
+    let project = try readProject(botUrl: botUrl)
+    let botname = project.name
+    shell(["docker-compose", "-f", "./.docker/docker-compose.yml", "-p", botname, "stop"])
 }
 
-func down() throws {
-    shell(["docker-compose", "-f", "./.docker/docker-compose.yml", "down"])
+func down(botUrl: URL) throws {
+    let project = try readProject(botUrl: botUrl)
+    let botname = project.name
+    shell(["docker-compose", "-f", "./.docker/docker-compose.yml", "-p", botname, "down"])
 }

@@ -36,9 +36,7 @@ struct Urls {
                 subComponents: [
                     PathComponent(
                         component: "Sources/__BOTNAME__",
-                        subComponents: [
-                            PathComponent( component: "__BOTNAME__.swift", subComponents: []),
-                        ]
+                        subComponents: []
                     ),
                 ]
             ),
